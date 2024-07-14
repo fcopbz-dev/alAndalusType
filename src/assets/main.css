@@ -4,5 +4,11 @@
 
 html,
 body {
-  @apply bg-gray-900 text-white;
+  color: #d1d0c5;
+  background-color: #323437;
+  font-family: monospace;
+}
+
+#app {
+  @apply h-screen;
 }
