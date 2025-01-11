@@ -1,55 +1,75 @@
 <template>
-  <section class="mx-auto max-w-screen-xl h-5/6 px-4 flex justify-center flex-col gap-4">
+  <!-- GAME SECTION -->
+  <section class="mx-auto w-full h-5/6 px-4 flex justify-center flex-col gap-4">
     <time class="text-yellow-500">{{ currentTime }}</time>
     <p class="text-2xl mx-auto max-w-screen-xl whitespace-normal break-keep break-words text-justify tracking-wide">
-      <span
-        v-for="(letter, letterIndex) in words"
-        :key="letterIndex"
-        :class="{
-          active: inputValue.length === letterIndex,
-          'text-green-600 bg-green-100': inputValue[letterIndex] && inputValue[letterIndex] === letter,
-          'text-red-600 bg-red-100': inputValue[letterIndex] && inputValue[letterIndex] !== letter,
-        }"
-        >{{ letter }}</span
-      >
+      <span v-for="(letter, letterIndex) in words" :key="letterIndex" :class="{
+        active: inputValue.length === letterIndex,
+        'text-green-600 bg-green-100': inputValue[letterIndex] && inputValue[letterIndex] === letter,
+        'text-red-600 bg-red-100': inputValue[letterIndex] && inputValue[letterIndex] !== letter,
+      }">{{ letter }}</span>
     </p>
 
-    <input type="text" autofocus v-model="input" @keydown="onKeyDown" />
+    <input type="text" ref="inputRef" class="absolute top-[-10rem] w-[1px] h-[1px]" v-model="input" @keydown="onKeyDown"
+      @blur="isPaused = true" />
+  </section>
+
+  <!-- PAUSE SECTION v-if="isPaused" -->
+  <section v-if="false"
+    class="absolute mx-auto w-5/6 h-5/6 flex items-center bg-gray-700 text-white bg-opacity-95 rounded-[2rem]"
+    @click="restoreFocus">
+    <p class="text-4xl mx-auto whitespace-normal break-keep break-words text-justify tracking-wide">
+      Haz click para continuar
+    </p>
   </section>
 </template>
 
 <script setup lang="ts">
-import { quote } from '@/utils/quotes';
-import { INITIAL_TIME, KEY_CODES_TO_IGNORE } from '@/utils/constans';
-import { computed, ref } from 'vue';
+import { KEY_CODES_TO_IGNORE } from '@/utils/constans';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { useGameStore } from '@/stores/useGameStore';
 
-let currentTime = ref(INITIAL_TIME);
-let words = ref<string[]>([]);
+// VARIABLES
 const input = ref('');
 const inputValue = computed(() => input.value);
-initGame();
+const inputRef = ref<HTMLInputElement | null>(null);
+const gameStore = useGameStore();
+const { startGame, endGame, setCurrentTime } = gameStore;
+const words = computed(() => gameStore.words);
+const currentTime = computed(() => gameStore.currentTime);
+const isPaused = ref(false);
+let interval: number
 
+// LIFECYCLE
+onMounted(() => {
+  initGame();
+  inputRef.value?.focus();
+});
+onUnmounted(() => {
+  clearInterval(interval);
+});
+
+//FUNCTIONS
 function initGame(): void {
-  currentTime.value = INITIAL_TIME;
-  words.value = quote.trim().split('');
+  startGame();
   initTimeInterval();
 }
 
 function initTimeInterval(): void {
-  const interval = setInterval(() => {
-    currentTime.value -= 1;
+  interval = setInterval(() => {
+    setCurrentTime(currentTime.value - 1);
+    console.log(currentTime.value);
     if (currentTime.value === 0) {
       clearInterval(interval);
-      gameOver();
     }
   }, 1000);
 }
 
 function gameOver(): void {
-  console.log('Game Over');
+  endGame();
 }
 
-function initEvents(): void {}
+function initEvents(): void { }
 
 function onKeyDown(event: KeyboardEvent): void {
   if (KEY_CODES_TO_IGNORE.includes(event.code)) {
@@ -61,11 +81,17 @@ function onKeyDown(event: KeyboardEvent): void {
     return;
   }
 }
+
+function restoreFocus(): void {
+  isPaused.value = false;
+  inputRef.value?.focus();
+}
 </script>
 
 <style scoped>
 span {
   position: relative;
+
   &.active::before {
     content: '|';
     position: absolute;
@@ -78,10 +104,12 @@ span {
 }
 
 @keyframes blink {
+
   0%,
   25% {
     opacity: 1;
   }
+
   75% {
     opacity: 0;
   }
