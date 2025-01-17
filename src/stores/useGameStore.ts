@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-type GameStatus = 'start' | 'inGame' | 'end';
+export type GameStatus = 'waitingForStart' | 'inGame' | 'paused' | 'end' | 'restart';
 import { INITIAL_TIME } from '@/utils/constans';
 import { quote } from '@/utils/quotes';
 
 export const useGameStore = defineStore('game', () => {
-  const gameStatus = ref<GameStatus>('start');
-  const currentTime = ref(INITIAL_TIME);
+  const gameStatus = ref<GameStatus>('waitingForStart');
+  const currentTime = ref(0);
   const words = ref<string[]>([]);
 
   const setCurrentTime = (time: number) => {
@@ -28,12 +28,31 @@ export const useGameStore = defineStore('game', () => {
     words.value = [];
   };
 
+  const resetGame = () => {
+    gameStatus.value = 'restart';
+    currentTime.value = INITIAL_TIME;
+    words.value = [];
+  };
+
+  const pauseGame = () => {
+    console.log('Game Paused');
+    gameStatus.value = 'paused';
+  };
+
+  const resumeGame = () => {
+    console.log('Game Resumed');
+    gameStatus.value = 'inGame';
+  };
+
   return {
-    gameStatus: computed(() => gameStatus.value),
+    gameStatus,
     currentTime: computed(() => currentTime.value),
     words: computed(() => words.value),
     setCurrentTime,
     startGame,
     endGame,
+    resetGame,
+    pauseGame,
+    resumeGame,
   };
 });

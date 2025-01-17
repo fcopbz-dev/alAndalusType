@@ -38,14 +38,15 @@ import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { RouterLink } from 'vue-router';
 const route = useRoute();
+const router = useRouter();
 const gameStore = useGameStore();
 const currentRouteName = computed(() => route.name);
 
 function newGame(): void {
     if (currentRouteName.value === routes.type) {
-        gameStore.startGame();
+        gameStore.resetGame();
     } else {
-        useRouter().push({ name: routes.type });
+        router.push({ name: routes.type });
     }
 }
 

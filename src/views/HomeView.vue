@@ -8,7 +8,7 @@
 
       <div class="mt-8 flex flex-wrap justify-center gap-4">
         <RouterLink
-          class="block w-full rounded border border-green-700 bg-green-700 px-12 py-3 text-sm font-medium hover:bg-transparent focus:outline-none focus:ring active:text-opacity-75 sm:w-auto"
+          class="block w-full rounded border border-blue-700 px-12 py-3 text-sm font-medium hover:bg-transparent hover:border-2 focus:outline-none focus:ring active:text-opacity-75 sm:w-auto"
           to="/type">
           Empezar
         </RouterLink>

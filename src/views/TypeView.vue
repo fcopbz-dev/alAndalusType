@@ -11,13 +11,13 @@
     </p>
 
     <input type="text" ref="inputRef" class="absolute top-[-10rem] w-[1px] h-[1px]" v-model="input" @keydown="onKeyDown"
-      @blur="isPaused = true" />
+      @blur="pauseGame" />
   </section>
 
   <!-- PAUSE SECTION v-if="isPaused" -->
-  <section v-if="false"
+  <section v-if="isPaused"
     class="absolute mx-auto w-5/6 h-5/6 flex items-center bg-gray-700 text-white bg-opacity-95 rounded-[2rem]"
-    @click="restoreFocus">
+    @click="resumeGame">
     <p class="text-4xl mx-auto whitespace-normal break-keep break-words text-justify tracking-wide">
       Haz click para continuar
     </p>
@@ -26,50 +26,62 @@
 
 <script setup lang="ts">
 import { KEY_CODES_TO_IGNORE } from '@/utils/constans';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { useGameStore } from '@/stores/useGameStore';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useGameStore, type GameStatus } from '@/stores/useGameStore';
+import { storeToRefs } from 'pinia';
 
 // VARIABLES
 const input = ref('');
 const inputValue = computed(() => input.value);
 const inputRef = ref<HTMLInputElement | null>(null);
-const gameStore = useGameStore();
-const { startGame, endGame, setCurrentTime } = gameStore;
+const gameStore = useGameStore()
+const { startGame, endGame, setCurrentTime, pauseGame, resumeGame } = gameStore;
 const words = computed(() => gameStore.words);
 const currentTime = computed(() => gameStore.currentTime);
+const { gameStatus } = storeToRefs(gameStore);
 const isPaused = ref(false);
 let interval: number
 
 // LIFECYCLE
 onMounted(() => {
-  initGame();
-  inputRef.value?.focus();
+  input.value = '';
+  startGame();
 });
 onUnmounted(() => {
-  clearInterval(interval);
+  clearTimeInterval();
+});
+
+watch(gameStatus, (value: GameStatus) => {
+  console.log(value);
+  if (value === 'inGame') {
+    continueGame();
+  }
+  if (value === 'restart') {
+    input.value = '';
+    startGame();
+  }
+  if (value === 'paused') {
+    isPaused.value = true;
+    clearTimeInterval();
+  }
 });
 
 //FUNCTIONS
-function initGame(): void {
-  startGame();
+function continueGame(): void {
+  isPaused.value = false;
+  inputRef.value?.focus();
   initTimeInterval();
 }
 
 function initTimeInterval(): void {
   interval = setInterval(() => {
-    setCurrentTime(currentTime.value - 1);
-    console.log(currentTime.value);
-    if (currentTime.value === 0) {
-      clearInterval(interval);
-    }
+    setCurrentTime(currentTime.value + 1);
   }, 1000);
 }
 
-function gameOver(): void {
-  endGame();
+function clearTimeInterval(): void {
+  clearInterval(interval);
 }
-
-function initEvents(): void { }
 
 function onKeyDown(event: KeyboardEvent): void {
   if (KEY_CODES_TO_IGNORE.includes(event.code)) {
@@ -80,11 +92,6 @@ function onKeyDown(event: KeyboardEvent): void {
     event.preventDefault();
     return;
   }
-}
-
-function restoreFocus(): void {
-  isPaused.value = false;
-  inputRef.value?.focus();
 }
 </script>
 
