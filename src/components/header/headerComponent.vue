@@ -2,12 +2,12 @@
     <!-- ========== HEADER ========== -->
     <header class="sticky top-0 inset-x-0 flex flex-wrap z-50 w-full text-sm">
         <nav
-            class="m-4 mx-auto p-4 relative w-4/5 bg-white border-4 border-blue-200 rounded-[2rem] mx-2 py-2.5 flex items-center justify-between">
+            class="mt-4 mx-auto p-4 relative w-4/5 bg-white border-4 border-blue-200 rounded-[2rem] mx-2 py-2.5 flex items-center justify-between">
             <div class="px-4 md:px-0 flex justify-between items-center">
                 <div class="flex items-center">
                     <!-- Logo -->
                     <RouterLink :to="{ name: routes.home }">
-                        <p class="text-green-700 bg-clip-text text-4xl font-extrabold">AndalusType</p>
+                        <p class="text-green-700 bg-clip-text text-4xl font-extrabold">AndaluType</p>
                     </RouterLink>
                     <!-- End Logo -->
                 </div>

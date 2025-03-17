@@ -1,28 +1,39 @@
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
+import { INITIAL_TIME } from '@/utils/constans';
+import { quotes } from '@/utils/quotes';
 
 export type GameStatus = 'waitingForStart' | 'inGame' | 'paused' | 'end' | 'restart';
-import { INITIAL_TIME } from '@/utils/constans';
-import { quote } from '@/utils/quotes';
+export interface GameStats {
+  time: number;
+  words: string;
+  errors: number;
+}
 
 export const useGameStore = defineStore('game', () => {
   const gameStatus = ref<GameStatus>('waitingForStart');
   const currentTime = ref(0);
   const words = ref<string[]>([]);
+  const errorCount = ref(0);
+  const gamesStats = ref<GameStats[]>([]);
+
+  const incrementErrorCount = () => {
+    errorCount.value++;
+  };
 
   const setCurrentTime = (time: number) => {
     currentTime.value = time;
   };
 
   const startGame = () => {
-    console.log('Game Start');
     gameStatus.value = 'inGame';
     currentTime.value = INITIAL_TIME;
-    words.value = quote.trim().split('');
+    words.value = quotes[1].trim().split('');
+    errorCount.value = 0;
   };
 
   const endGame = () => {
-    console.log('Game Over');
+    gamesStats.value.push({ time: currentTime.value, words: words.value.join(''), errors: errorCount.value });
     gameStatus.value = 'end';
     currentTime.value = INITIAL_TIME;
     words.value = [];
@@ -45,10 +56,15 @@ export const useGameStore = defineStore('game', () => {
   };
 
   return {
+    // Getters
     gameStatus,
-    currentTime: computed(() => currentTime.value),
-    words: computed(() => words.value),
+    currentTime,
+    words,
+    errorCount,
+    // Methods
     setCurrentTime,
+    incrementErrorCount,
+    // Status Methods
     startGame,
     endGame,
     resetGame,

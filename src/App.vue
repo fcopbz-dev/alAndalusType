@@ -7,7 +7,7 @@
   <div class="w-full h-screen bg-white text-blue-700">
     <HeaderComponent />
 
-    <section class="mx-auto w-5/6 h-5/6 flex items-center">
+    <section class="mx-auto w-4/5 h-5/6 flex items-center">
       <RouterView />
     </section>
   </div>
